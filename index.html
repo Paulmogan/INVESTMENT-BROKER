@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>5x weekly · investment demo</title>
+  <style>
+    /* ---------- global ---------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(145deg, #0b0f1c 0%, #141b2b 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    /* main container – split into login + dashboard */
+    .main-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: center;
+      align-items: stretch;
+      max-width: 1300px;
+      width: 100%;
+    }
+
+    /* ---------- LOGIN CARD (left) ---------- */
+    .login-card {
+      flex: 1 1 360px;
+      background: rgba(18, 26, 40, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(80, 140, 255, 0.2);
+      border-radius: 36px;
+      padding: 2.5rem 2rem;
+      box-shadow: 0 25px 50px -8px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0, 180, 255, 0.1) inset;
+      transition: transform 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .login-card:hover {
+      border-color: rgba(0, 200, 255, 0.35);
+    }
+
+    .login-header {
+      margin-bottom: 2rem;
+    }
+
+    .login-header h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      background: linear-gradient(120deg, #ffffff, #9ac7ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 0.25rem;
+    }
+
+    .login-header p {
+      color: #8f9eb5;
+      font-size: 0.9rem;
+      font-weight: 400;
+      letter-spacing: 0.2px;
+    }
+
+    .input-group {
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .input-group label {
+      display: block;
+      color: #b7c9e0;
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 0.5rem;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 1rem 1.2rem;
+      background: rgba(8, 14, 23, 0.9);
+      border: 1.5px solid #253247;
+      border-radius: 20px;
+      font-size: 1rem;
+      color: #eef5ff;
+      outline: none;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+
+    .input-group input:focus {
+      border-color: #3d7eff;
+      box-shadow: 0 0 0 4px rgba(61, 126, 255, 0.2);
+    }
+
+    .input-group input::placeholder {
+      color: #4f607c;
+      font-size: 0.9rem;
+    }
+
+    .login-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 1.2rem 0 2rem;
+      font-size: 0.85rem;
+      color: #9eb1cc;
+    }
+
+    .checkbox {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+
+    .checkbox input {
+      accent-color: #3d7eff;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .forgot-link {
+      color: #6d9aff;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .forgot-link:hover {
+      color: #a7c4ff;
+      text-decoration: underline;
+    }
+
+    .login-btn {
+      background: linear-gradient(135deg, #1f5eff, #2e7aff);
+      border: none;
+      border-radius: 30px;
+      padding: 1rem 1.8rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: white;
+      width: 100%;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s, box-shadow 0.3s;
+      box-shadow: 0 10px 25px -6px #0b3da0;
+      letter-spacing: 0.3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .login-btn:hover {
+      background: linear-gradient(135deg, #2e6bff, #3d8aff);
+      box-shadow: 0 18px 30px -8px #1d4ed8;
+      transform: scale(1.01);
+    }
+
+    .login-btn:active {
+      transform: scale(0.98);
+    }
+
+    .register-hint {
+      margin-top: 2rem;
+      text-align: center;
+      color: #7c8aa8;
+      font-size: 0.85rem;
+    }
+
+    .register-hint a {
+      color: #6d9aff;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .register-hint a:hover {
+      text-decoration: underline;
+    }
+
+    /* ---------- INVESTMENT DASHBOARD (right) ---------- */
+    .invest-card {
+      flex: 2 1 620px;
+      background: rgba(12, 18, 30, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 200, 255, 0.15);
+      border-radius: 36px;
+      padding: 2.5rem 2rem;
+      box-shadow: 0 30px 50px -15px #000000cc, 0 0 0 1px rgba(0, 255, 255, 0.05) inset;
+      display: flex;
+      flex-direction: column;
+      transition: border 0.2s;
+    }
+
+    .invest-card:hover {
+      border-color: rgba(0, 220, 255, 0.3);
+    }
+
+    .invest-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .invest-header h2 {
+      font-size: 1.9rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      background: linear-gradient(120deg, #ffffff, #b0dcff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .badge-5x {
+      background: rgba(0, 255, 170, 0.15);
+      border: 1px solid #1effb0;
+      border-radius: 60px;
+      padding: 0.5rem 1.2rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #4affc4;
+      letter-spacing: 0.5px;
+      box-shadow: 0 0 15px #00ffaa33;
+      text-shadow: 0 0 8px #00ffaa80;
+    }
+
+    .range-indicator {
+      display: flex;
+      justify-content: space-between;
+      color: #a0b6d6;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
+      padding: 0 0.2rem;
+    }
+
+    .range-indicator span:first-child {
+      color: #86a0c9;
+    }
+
+    .range-indicator span:last-child {
+      color: #c0d4ff;
+    }
+
+    /* slider section */
+    .amount-slider {
+      margin: 1.5rem 0 2rem;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.5rem;
+    }
+
+    .slider-label label {
+      color: #b6c8e5;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .amount-display {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+      background: linear-gradient(to right, #f0f9ff, #c2dcff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      line-height: 1;
+    }
+
+    .amount-display small {
+      font-size: 1rem;
+      font-weight: 400;
+      color: #7b92b0;
+      background: none;
+      -webkit-background-clip: unset;
+      background-clip: unset;
+      color: #8599b5;
+      margin-left: 6px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 10px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: linear-gradient(90deg, #1e3b6b, #2d5aa7, #3d7eff, #6d9eff);
+      border-radius: 20px;
+      outline: none;
+      margin: 0.5rem 0 0.2rem;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 26px;
+      height: 26px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 0 18px #3d7eff, 0 4px 10px #00000055;
+      border: 3px solid #3d7eff;
+      transition: 0.1s;
+      cursor: grab;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:active {
+      cursor: grabbing;
+      transform: scale(1.1);
+      box-shadow: 0 0 25px #3d7eff, 0 4px 12px #000;
+    }
+
+    .quick-buttons {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      margin: 1.5rem 0 1rem;
+    }
+
+    .quick-btn {
+      background: #16202e;
+      border: 1px solid #2e405b;
+      color: #b8cef0;
+      padding: 0.6rem 1.3rem;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      flex: 1 0 auto;
+    }
+
+    .quick-btn:hover {
+      background: #1f3148;
+      border-color: #3d7eff;
+      color: white;
+      box-shadow: 0 0 12px #3d7eff33;
+    }
+
+    .quick-btn.active {
+      background: #1f4a9e;
+      border-color: #6d9eff;
+      color: white;
+      box-shadow: 0 0 14px #3d7eff80;
+    }
+
+    /* result panel */
+    .result-panel {
+      background: #0b111c;
+      border-radius: 28px;
+      padding: 1.8rem 1.8rem;
+      margin-top: 1.2rem;
+      border: 1px solid #20375a;
+      box-shadow: 0 10px 25px -10px #000000aa, 0 0 0 1px #1a2b40 inset;
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.9rem 0;
+    }
+
+    .result-row:first-child {
+      border-bottom: 1px solid #1f2c40;
+    }
+
+    .result-label {
+      color: #99adca;
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+    }
+
+    .result-value {
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: #e4efff;
+      letter-spacing: -0.02em;
+    }
+
+    .result-value .currency {
+      font-size: 1rem;
+      color: #6f8bb0;
+      font-weight: 500;
+      margin-right: 3px;
+    }
+
+    .highlight-green {
+      color: #2effb0;
+      text-shadow: 0 0 16px #00ffb380;
+      font-size: 2rem;
+    }
+
+    .highlight-green .currency {
+      color: #2effb0;
+      font-size: 1.2rem;
+    }
+
+    .week-badge {
+      background: #1b2e44;
+      color: #aac8ff;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.25rem 0.9rem;
+      border-radius: 40px;
+      border: 1px solid #2e4c73;
+    }
+
+    .invest-btn {
+      background: linear-gradient(135deg, #0c8f5e, #0bbd77);
+      border: none;
+      border-radius: 50px;
+      padding: 1.2rem 2rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: white;
+      width: 100%;
+      margin-top: 1.5rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s, box-shadow 0.3s;
+      box-shadow: 0 10px 30px -5px #0f9d66;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .invest-btn:hover {
+      background: linear-gradient(135deg, #0aa06a, #0ed68b);
+      box-shadow: 0 20px 35px -8px #10b981;
+      transform: scale(1.01);
+    }
+
+    .invest-btn:active {
+      transform: scale(0.98);
+    }
+
+    .disclaimer {
+      margin-top: 1rem;
+      font-size: 0.75rem;
+      color: #5d6f88;
+      text-align: center;
+      letter-spacing: 0.2px;
+    }
+
+    /* responsive */
+    @media (max-width: 860px) {
+      .main-wrapper {
+        flex-direction: column;
+      }
+      .login-card, .invest-card {
+        flex: 1 1 auto;
+        width: 100%;
+      }
+      .amount-display {
+        font-size: 1.8rem;
+      }
+      .result-value {
+        font-size: 1.3rem;
+      }
+      .highlight-green {
+        font-size: 1.7rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 0.8rem;
+      }
+      .login-card, .invest-card {
+        padding: 1.8rem 1.2rem;
+        border-radius: 28px;
+      }
+      .quick-btn {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .result-value {
+        font-size: 1.1rem;
+      }
+      .highlight-green {
+        font-size: 1.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-wrapper">
+    <!-- ========== LOGIN SECTION ========== -->
+    <div class="login-card">
+      <div class="login-header">
+        <h1>InvestX</h1>
+        <p>secure access · weekly 5x</p>
+      </div>
+
+      <form id="loginForm" onsubmit="event.preventDefault(); alert('Demo login — no real authentication.');">
+        <div class="input-group">
+          <label for="email">Email address</label>
+          <input type="email" id="email" placeholder="investor@example.com" required autocomplete="email">
+        </div>
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+
+        <div class="login-options">
+          <label class="checkbox">
+            <input type="checkbox" checked> Remember me
+          </label>
+          <a href="#" class="forgot-link" onclick="alert('Password reset demo'); return false;">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="login-btn">
+          <span>🔐</span> Sign in
+        </button>
+      </form>
+
+      <div class="register-hint">
+        New to InvestX? <a href="#" onclick="alert('Registration demo'); return false;">Create account</a>
+      </div>
+    </div>
+
+    <!-- ========== INVESTMENT DASHBOARD ========== -->
+    <div class="invest-card">
+      <div class="invest-header">
+        <h2>Weekly 5x</h2>
+        <div class="badge-5x">×5 / WEEK</div>
+      </div>
+
+      <!-- amount slider -->
+      <div class="amount-slider">
+        <div class="slider-label">
+          <label for="investmentRange">Investment amount</label>
+          <div class="amount-display" id="amountDisplay">
+            $500 <small>min</small>
+          </div>
+        </div>
+
+        <input type="range" id="investmentRange" min="500" max="15000" value="500" step="100">
+
+        <div class="range-indicator">
+          <span>$500</span>
+          <span>$15,000</span>
+        </div>
+      </div>
+
+      <!-- quick amount buttons -->
+      <div class="quick-buttons">
+        <button type="button" class="quick-btn active" data-amount="500">$500</button>
+        <button type="button" class="quick-btn" data-amount="1500">$1,500</button>
+        <button type="button" class="quick-btn" data-amount="5000">$5,000</button>
+        <button type="button" class="quick-btn" data-amount="10000">$10k</button>
+        <button type="button" class="quick-btn" data-amount="15000">$15k</button>
+      </div>
+
+      <!-- result panel -->
+      <div class="result-panel">
+        <div class="result-row">
+          <span class="result-label">You invest</span>
+          <span class="result-value" id="investedAmount">$500</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">
+            After 1 week <span class="week-badge">×5</span>
+          </span>
+          <span class="result-value highlight-green" id="payoutAmount">$2,500</span>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <button class="invest-btn" id="investNowBtn">
+        ⚡ Invest now · 5x weekly
+      </button>
+      <div class="disclaimer">
+        * Illustrative only. Not financial advice.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ----- DOM references -----
+      const slider = document.getElementById('investmentRange');
+      const amountDisplay = document.getElementById('amountDisplay');
+      const investedSpan = document.getElementById('investedAmount');
+      const payoutSpan = document.getElementById('payoutAmount');
+      const quickBtns = document.querySelectorAll('.quick-btn');
+      const investBtn = document.getElementById('investNowBtn');
+
+      // ----- helper: format currency -----
+      function formatUSD(value) {
+        return '$' + value.toLocaleString('en-US');
+      }
+
+      // ----- update UI from slider value -----
+      function updateFromValue(value) {
+        // enforce 500–15000 (already via slider min/max)
+        const amount = Number(value);
+        const payout = amount * 5;
+
+        // update amount display (with small hint for min)
+        amountDisplay.innerHTML = formatUSD(amount) + (amount === 500 ? ' <small>min</small>' : '');
+
+        // update result rows
+        investedSpan.textContent = formatUSD(amount);
+        payoutSpan.innerHTML = `<span class="currency">$</span>${payout.toLocaleString('en-US')}`;
+
+        // update active class on quick buttons
+        quickBtns.forEach(btn => {
+          const btnAmount = Number(btn.getAttribute('data-amount'));
+          btn.classList.toggle('active', btnAmount === amount);
+        });
+      }
+
+      // ----- slider event -----
+      slider.addEventListener('input', (e) => {
+        updateFromValue(e.target.value);
+      });
+
+      // ----- quick buttons -----
+      quickBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const amount = Number(btn.getAttribute('data-amount'));
+          slider.value = amount;
+          updateFromValue(amount);
+        });
+      });
+
+      // ----- invest button -----
+      investBtn.addEventListener('click', () => {
+        const amount = Number(slider.value);
+        const payout = amount * 5;
+        alert(`
+
+      // ----- initial sync (default 500) -----
+      updateFromValue(500);
+    })();
+  </script>
+</body>
+</html>
